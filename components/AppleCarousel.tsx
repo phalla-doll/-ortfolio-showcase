@@ -1,29 +1,41 @@
 "use client";
 
-import React from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import { motion } from "motion/react";
 import Image from "next/image";
 import { projects } from "../app/data/projects";
-import { ExternalLink, Github } from "lucide-react";
+import { Github, ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function AppleCarousel() {
-  const [emblaRef] = useEmblaCarousel({
+  const [emblaRef, emblaApi] = useEmblaCarousel({
     loop: false,
     align: "start",
     skipSnaps: false,
     dragFree: true,
   });
 
-  return (
-    <section className="w-full py-24 bg-zinc-50 dark:bg-zinc-950 relative overflow-hidden">
-      {/* Subtle background noise texture */}
-      <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'url("https://www.transparenttextures.com/patterns/cubes.png")' }}></div>
-      
-      {/* Gradient background blur */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-indigo-500/20 rounded-full blur-[120px] pointer-events-none"></div>
+  const [prevBtnDisabled, setPrevBtnDisabled] = useState(true);
+  const [nextBtnDisabled, setNextBtnDisabled] = useState(true);
 
-      <div className="max-w-7xl mx-auto px-6 md:px-12 mb-12 relative z-10">
+  const scrollPrev = useCallback(() => emblaApi && emblaApi.scrollPrev(), [emblaApi]);
+  const scrollNext = useCallback(() => emblaApi && emblaApi.scrollNext(), [emblaApi]);
+
+  const onSelect = useCallback((emblaApi: any) => {
+    setPrevBtnDisabled(!emblaApi.canScrollPrev());
+    setNextBtnDisabled(!emblaApi.canScrollNext());
+  }, []);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    onSelect(emblaApi);
+    emblaApi.on("reInit", onSelect);
+    emblaApi.on("select", onSelect);
+  }, [emblaApi, onSelect]);
+
+  return (
+    <section className="w-full py-24 md:py-32 bg-white dark:bg-zinc-950 relative overflow-hidden">
+      <div className="max-w-7xl mx-auto px-6 md:px-12 mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -33,9 +45,34 @@ export default function AppleCarousel() {
           <h2 className="text-4xl md:text-5xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50 mb-4">
             Selected Projects
           </h2>
-          <p className="text-lg md:text-xl text-zinc-500 dark:text-zinc-400 max-w-2xl">
+          <p className="text-lg text-zinc-500 dark:text-zinc-400 max-w-2xl">
             A collection of products, experiments and tools I&apos;ve built.
           </p>
+        </motion.div>
+
+        {/* Navigation Buttons */}
+        <motion.div 
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          className="hidden md:flex items-center gap-3"
+        >
+          <button
+            onClick={scrollPrev}
+            disabled={prevBtnDisabled}
+            className="p-3 rounded-full bg-zinc-100 dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            aria-label="Previous slide"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <button
+            onClick={scrollNext}
+            disabled={nextBtnDisabled}
+            className="p-3 rounded-full bg-zinc-100 dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            aria-label="Next slide"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
         </motion.div>
       </div>
 
@@ -45,21 +82,15 @@ export default function AppleCarousel() {
             {projects.map((project, index) => (
               <motion.div
                 key={project.id}
-                initial={{ opacity: 0, y: 40 }}
+                initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-100px" }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                className="flex-[0_0_85%] sm:flex-[0_0_60%] md:flex-[0_0_45%] lg:flex-[0_0_35%] min-w-0"
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="flex-[0_0_90%] sm:flex-[0_0_65%] md:flex-[0_0_45%] lg:flex-[0_0_35%] min-w-0"
               >
-                <motion.div 
-                  whileHover={{ y: -8, scale: 1.02 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                  className="group relative bg-white dark:bg-zinc-900 rounded-[24px] p-2 shadow-sm hover:shadow-xl transition-shadow duration-500 ease-out border border-zinc-200/50 dark:border-zinc-800/50 h-full flex flex-col"
-                >
-                  {/* Glassy hover highlight */}
-                  <div className="absolute inset-0 rounded-[24px] bg-gradient-to-b from-white/40 to-transparent dark:from-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+                <div className="group relative bg-zinc-50 dark:bg-zinc-900/40 rounded-3xl overflow-hidden border border-zinc-200/50 dark:border-zinc-800/50 h-full flex flex-col transition-all duration-300 hover:shadow-2xl hover:shadow-zinc-200/50 dark:hover:shadow-black/50 hover:-translate-y-1">
                   
-                  <div className="relative overflow-hidden rounded-[18px] aspect-[16/10] mb-6">
+                  <div className="relative w-full aspect-[16/10] overflow-hidden bg-zinc-200 dark:bg-zinc-800">
                     <Image
                       src={project.image}
                       alt={project.title}
@@ -67,34 +98,37 @@ export default function AppleCarousel() {
                       className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                       referrerPolicy="no-referrer"
                     />
+                    {/* Subtle inner shadow for depth */}
+                    <div className="absolute inset-0 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)] rounded-t-3xl pointer-events-none" />
                   </div>
                   
-                  <div className="px-4 pb-6 flex-1 flex flex-col">
-                    <h3 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50 mb-2">
+                  <div className="p-6 md:p-8 flex-1 flex flex-col">
+                    <h3 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50 mb-3 tracking-tight">
                       {project.title}
                     </h3>
-                    <p className="text-zinc-500 dark:text-zinc-400 mb-6 line-clamp-2 flex-1">
+                    <p className="text-zinc-500 dark:text-zinc-400 mb-6 line-clamp-2 flex-1 leading-relaxed">
                       {project.description}
                     </p>
                     
                     <div className="flex flex-wrap gap-2 mb-8">
                       {project.tech.map((tech) => (
-                        <span key={tech} className="px-3 py-1 text-xs font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 rounded-full">
+                        <span key={tech} className="px-3 py-1 text-xs font-medium bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 rounded-full">
                           {tech}
                         </span>
                       ))}
                     </div>
                     
-                    <div className="flex items-center gap-4 mt-auto">
-                      <a href={project.demo} className="flex items-center gap-2 text-sm font-medium text-white bg-zinc-900 dark:bg-zinc-50 dark:text-zinc-900 px-5 py-2.5 rounded-full hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors">
-                        Live Demo <ExternalLink className="w-4 h-4" />
+                    <div className="flex items-center gap-3 mt-auto">
+                      <a href={project.demo} className="flex-1 flex items-center justify-center gap-2 text-sm font-medium text-white bg-zinc-900 dark:bg-zinc-50 dark:text-zinc-900 px-4 py-2.5 rounded-full hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors">
+                        Live Demo
                       </a>
-                      <a href={project.github} className="flex items-center gap-2 text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 transition-colors">
-                        <Github className="w-5 h-5" />
+                      <a href={project.github} className="flex items-center justify-center gap-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 px-4 py-2.5 rounded-full hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors">
+                        <Github className="w-4 h-4" />
+                        <span className="sr-only">GitHub</span>
                       </a>
                     </div>
                   </div>
-                </motion.div>
+                </div>
               </motion.div>
             ))}
           </div>
