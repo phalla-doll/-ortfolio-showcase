@@ -28,7 +28,11 @@ export default function AppleCarousel() {
 
   useEffect(() => {
     if (!emblaApi) return;
-    onSelect(emblaApi);
+    
+    // Defer the initial state update to avoid synchronous setState in effect
+    const initSelect = () => onSelect(emblaApi);
+    initSelect();
+    
     emblaApi.on("reInit", onSelect);
     emblaApi.on("select", onSelect);
   }, [emblaApi, onSelect]);

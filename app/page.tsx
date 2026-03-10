@@ -2,6 +2,7 @@ import AppleCarousel from "@/components/AppleCarousel";
 import ExpandingGrid from "@/components/ExpandingGrid";
 import ScrollStory from "@/components/ScrollStory";
 import ProjectDock from "@/components/ProjectDock";
+import CursorRevealShowcase from "@/components/CursorRevealShowcase";
 
 export default function Home() {
   return (
@@ -12,7 +13,7 @@ export default function Home() {
           Portfolio Showcase
         </h1>
         <p className="text-xl text-zinc-500 dark:text-zinc-400 max-w-2xl mb-10">
-          Four different ways to showcase your projects. Scroll down to see the Apple-style carousel, the expanding grid, the scroll story, and the interactive dock.
+          Five different ways to showcase your projects. Scroll down to see the Apple-style carousel, the expanding grid, the scroll story, the interactive dock, and the cursor reveal list.
         </p>
       </section>
 
@@ -34,6 +35,11 @@ export default function Home() {
       {/* 4. Interactive Dock */}
       <div className="border-t border-zinc-200 dark:border-zinc-800">
         <ProjectDock />
+      </div>
+
+      {/* 5. Cursor Reveal Showcase */}
+      <div className="border-t border-zinc-200 dark:border-zinc-800">
+        <CursorRevealShowcase />
       </div>
     </main>
   );
